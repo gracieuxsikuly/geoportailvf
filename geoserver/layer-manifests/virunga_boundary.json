@@ -1,0 +1,33 @@
+{
+  "id": "virunga-boundary",
+  "slug": "limite-parc-virunga",
+  "title": {
+    "fr": "Limite du Parc National des Virunga",
+    "en": "Virunga National Park Boundary"
+  },
+  "theme": "limites-administratives",
+  "service": {
+    "type": "WMS",
+    "url": "https://gis.virunga.org/geoserver/wms",
+    "workspace": "virunga",
+    "layer": "virunga:virunga_boundary",
+    "style": "virunga_boundary"
+  },
+  "display": {
+    "defaultOpacity": 0.8,
+    "minZoom": 5,
+    "maxZoom": 18,
+    "visibleByDefault": true
+  },
+  "metadata": {
+    "source": "Institut Congolais pour la Conservation de la Nature (ICCN)",
+    "updateDate": "2023-12-01",
+    "license": "CC-BY-NC 4.0",
+    "qualityLevel": 4,
+    "isoTopicCategory": "boundaries"
+  },
+  "sensitivity": "public",
+  "popup": {
+    "fields": ["name", "iucn_category", "area_km2", "creation_year"]
+  }
+}

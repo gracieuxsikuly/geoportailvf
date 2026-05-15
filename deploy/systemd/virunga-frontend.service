@@ -1,0 +1,29 @@
+[Unit]
+Description=Virunga WebGIS — Frontend Next.js
+After=network.target virunga-backend.service
+Wants=virunga-backend.service
+
+[Service]
+Type=simple
+User=virunga
+Group=virunga
+WorkingDirectory=/opt/virunga-webgis/frontend
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=virunga-frontend
+LimitNOFILE=65535
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/virunga-webgis/frontend/.next /opt/virunga-webgis/frontend/logs
+
+[Install]
+WantedBy=multi-user.target

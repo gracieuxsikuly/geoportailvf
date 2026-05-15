@@ -1,0 +1,21 @@
+{
+  "name": "virunga-webgis",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portail WebGIS — Parc National des Virunga (Virunga Fondation)",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace backend run start:dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "build:backend": "npm --workspace backend run build",
+    "build:frontend": "npm --workspace frontend run build",
+    "lint": "npm --workspaces run lint --if-present",
+    "test": "npm --workspaces run test --if-present"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

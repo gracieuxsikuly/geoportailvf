@@ -1,0 +1,28 @@
+[Unit]
+Description=Virunga WebGIS — Backend NestJS
+After=network.target redis-server.service postgresql.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=virunga
+Group=virunga
+WorkingDirectory=/opt/virunga-webgis/backend
+EnvironmentFile=/opt/virunga-webgis/backend/.env
+ExecStart=/usr/bin/node dist/main.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=virunga-backend
+LimitNOFILE=65535
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/virunga-webgis/backend/logs
+
+[Install]
+WantedBy=multi-user.target

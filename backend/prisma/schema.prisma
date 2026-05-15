@@ -1,0 +1,192 @@
+// Prisma schema — Virunga WebGIS
+// Schéma applicatif COMPLÉMENTAIRE uniquement.
+// Les tables métier SIG existent déjà dans PostGIS et ne doivent pas être recréées ici.
+// Le portail consomme les couches via GeoServer (https://gis.virunga.org/).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["portal_app"]
+}
+
+enum ServiceType {
+  WMS
+  WFS
+  WMTS
+  XYZ
+  VECTOR_TILE
+  GEOJSON
+
+  @@schema("portal_app")
+}
+
+enum SensitivityLevel {
+  public
+  restricted
+  confidential
+
+  @@schema("portal_app")
+}
+
+enum PageStatus {
+  draft
+  published
+  archived
+
+  @@schema("portal_app")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  fullName     String
+  role         String   @default("public")
+  isActive     Boolean  @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  auditLogs    AuditLog[]
+
+  @@map("users")
+  @@schema("portal_app")
+}
+
+model LayerGroup {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  labelFr       String
+  labelEn       String
+  descriptionFr String?
+  descriptionEn String?
+  icon          String?
+  sortOrder     Int      @default(0)
+  isVisible     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  layers        Layer[]
+
+  @@map("layer_groups")
+  @@schema("portal_app")
+}
+
+model Layer {
+  id                String           @id @default(uuid())
+  slug              String           @unique
+  titleFr           String
+  titleEn           String
+  themeId           String
+  serviceType       ServiceType
+  geoserverUrl      String
+  workspace         String
+  layerName         String
+  styleName         String?
+  defaultOpacity    Float            @default(1.0)
+  minZoom           Int              @default(0)
+  maxZoom           Int              @default(22)
+  isVisibleDefault  Boolean          @default(false)
+  isPublic          Boolean          @default(true)
+  sortOrder         Int              @default(0)
+  sensitivityLevel  SensitivityLevel @default(public)
+  popupFields       Json?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  theme             LayerGroup       @relation(fields: [themeId], references: [id])
+  metadata          LayerMetadata?
+
+  @@index([themeId])
+  @@map("layers")
+  @@schema("portal_app")
+}
+
+model LayerMetadata {
+  id                 String   @id @default(uuid())
+  layerId            String   @unique
+  sourceOrg          String?
+  updateDate         DateTime?
+  license            String?
+  descriptionFr      String?
+  descriptionEn      String?
+  qualityLevel       Int?
+  contactEmail       String?
+  legendUrl          String?
+  keywords           String[] @default([])
+  inspireTheme       String?
+  isoTopicCategory   String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  layer              Layer    @relation(fields: [layerId], references: [id], onDelete: Cascade)
+
+  @@map("layer_metadata")
+  @@schema("portal_app")
+}
+
+model GeoserverService {
+  id            String   @id @default(uuid())
+  name          String
+  baseUrl       String
+  workspace     String?
+  version       String?
+  isActive      Boolean  @default(true)
+  authRequired  Boolean  @default(false)
+  lastChecked   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("geoserver_services")
+  @@schema("portal_app")
+}
+
+model SavedMap {
+  id          String   @id @default(uuid())
+  userId      String?
+  title       String
+  configJson  Json
+  shareToken  String   @unique
+  createdAt   DateTime @default(now())
+
+  @@map("saved_maps")
+  @@schema("portal_app")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  action       String
+  resourceType String
+  resourceId   String?
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  user         User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resourceType, resourceId])
+  @@map("audit_logs")
+  @@schema("portal_app")
+}
+
+model PublicPage {
+  id         String     @id @default(uuid())
+  slug       String     @unique
+  titleFr    String
+  titleEn    String
+  contentFr  String?
+  contentEn  String?
+  status     PageStatus @default(draft)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@map("public_pages")
+  @@schema("portal_app")
+}

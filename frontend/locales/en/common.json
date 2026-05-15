@@ -1,0 +1,10 @@
+{
+  "common": {
+    "appName": "Virunga WebGIS",
+    "map": "Map",
+    "about": "About",
+    "layers": "Layers",
+    "search": "Search",
+    "loading": "Loading..."
+  }
+}
