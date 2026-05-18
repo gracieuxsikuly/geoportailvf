@@ -8,6 +8,9 @@ export const envValidationSchema = z.object({
   GEOSERVER_ADMIN_USER: z.string().optional(),
   GEOSERVER_ADMIN_PASSWORD: z.string().optional(),
 
+  CATALOG_SOURCE: z.enum(['geoserver', 'manifest', 'hybrid']).default('hybrid'),
+  CATALOG_REFRESH_CRON: z.string().default('*/15 * * * *'),
+
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
   CORS_ORIGINS: z.string().default('http://localhost:3000'),
 

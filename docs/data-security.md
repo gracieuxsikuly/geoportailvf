@@ -26,5 +26,6 @@
 - HTTPS obligatoire.
 - Helmet (CSP, HSTS, X-Frame-Options).
 - Rate limiting global et par route sensible.
-- Audit log de toutes les écritures et accès aux couches `restricted`/`confidential`.
+- Filtrage serveur : seules les couches `public` sont retournées par l'API de ce lot.
+- Pas d'écritures applicatives ni de back-office dans cette phase.
 - Secrets gérés via `.env` (chmod 600, jamais committés).

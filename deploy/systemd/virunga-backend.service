@@ -1,7 +1,6 @@
 [Unit]
 Description=Virunga WebGIS — Backend NestJS
-After=network.target redis-server.service postgresql.service
-Wants=redis-server.service
+After=network.target
 
 [Service]
 Type=simple
