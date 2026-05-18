@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../../config/config.service';
+import { GeoserverService } from '../../geoserver/geoserver.service';
 import {
   CatalogLayer,
   CatalogLayerManifest,
@@ -19,7 +20,10 @@ export class CatalogService {
   private readonly logger = new Logger(CatalogService.name);
   private snapshot: CatalogSnapshot = this.createEmptySnapshot();
 
-  constructor(private readonly config: AppConfigService) {}
+  constructor(
+    private readonly config: AppConfigService,
+    private readonly geoserver: GeoserverService,
+  ) {}
 
   getCatalog(): CatalogPayload {
     return {
@@ -72,8 +76,9 @@ export class CatalogService {
 
   async refreshCatalog(trigger: 'startup' | 'scheduled' | 'manual' = 'manual'): Promise<CatalogSnapshot> {
     try {
-      const manifests = this.loadManifests();
+      const localOverrides = this.loadManifests();
       const errors: CatalogSyncError[] = [];
+      const manifests = await this.resolveCatalogManifests(localOverrides, errors);
       const layers = manifests
         .filter((manifest) => this.isPublic(manifest))
         .map((manifest, index) => this.normalizeLayer(manifest, index, errors))
@@ -100,6 +105,102 @@ export class CatalogService {
       );
       return this.getSnapshot();
     }
+  }
+
+  private async resolveCatalogManifests(
+    localOverrides: CatalogLayerManifest[],
+    errors: CatalogSyncError[],
+  ): Promise<CatalogLayerManifest[]> {
+    if (this.config.catalogSource === 'manifest') {
+      return localOverrides;
+    }
+
+    const geoserverManifests = await this.loadGeoserverManifests(errors);
+
+    if (this.config.catalogSource === 'geoserver') {
+      return this.mergeImportedWithOverrides(geoserverManifests, localOverrides);
+    }
+
+    if (geoserverManifests.length === 0) {
+      return localOverrides;
+    }
+
+    const merged = this.mergeImportedWithOverrides(geoserverManifests, localOverrides);
+    const manifestOnlyLayers = localOverrides.filter(
+      (override) => !geoserverManifests.some((manifest) => this.isSameLayer(manifest, override)),
+    );
+
+    return [...merged, ...manifestOnlyLayers];
+  }
+
+  private async loadGeoserverManifests(errors: CatalogSyncError[]): Promise<CatalogLayerManifest[]> {
+    try {
+      return await this.geoserver.discoverLayerManifests();
+    } catch (error) {
+      const message = (error as Error).message;
+      errors.push({
+        field: 'catalog.source',
+        code: 'GEOSERVER_IMPORT_FAILED',
+        detail: message,
+      });
+
+      this.logger.warn(`GeoServer catalog import failed: ${message}`);
+      if (this.config.catalogSource === 'geoserver') {
+        throw error;
+      }
+
+      return [];
+    }
+  }
+
+  private mergeImportedWithOverrides(
+    imported: CatalogLayerManifest[],
+    overrides: CatalogLayerManifest[],
+  ): CatalogLayerManifest[] {
+    return imported.map((manifest) => {
+      const override = overrides.find((candidate) => this.isSameLayer(manifest, candidate));
+      return override ? this.mergeManifest(manifest, override) : manifest;
+    });
+  }
+
+  private mergeManifest(base: CatalogLayerManifest, override: CatalogLayerManifest): CatalogLayerManifest {
+    return {
+      ...base,
+      ...override,
+      title: {
+        ...base.title,
+        ...override.title,
+      },
+      theme: override.theme ?? base.theme,
+      themeLabel: {
+        ...base.themeLabel,
+        ...override.themeLabel,
+      },
+      service: {
+        ...base.service,
+        ...override.service,
+      },
+      display: {
+        ...base.display,
+        ...override.display,
+      },
+      metadata: {
+        ...base.metadata,
+        ...override.metadata,
+      },
+      popup: {
+        ...base.popup,
+        ...override.popup,
+        fields: override.popup?.fields ?? base.popup?.fields,
+      },
+      sensitivity: override.sensitivity ?? base.sensitivity,
+    };
+  }
+
+  private isSameLayer(left: CatalogLayerManifest, right: CatalogLayerManifest): boolean {
+    return left.service.layer === right.service.layer
+      || left.id === right.id
+      || left.slug === right.slug;
   }
 
   private loadManifests(): CatalogLayerManifest[] {

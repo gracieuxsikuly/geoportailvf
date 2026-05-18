@@ -14,14 +14,15 @@ Portail WebGIS public à 3 couches logiques :
 │ (MapLibre)   │           │ (TLS, gzip) │           │  NestJS     │
 └──────┬───────┘           └──────┬──────┘           └──────┬──────┘
        │                          │                         │
-       │ WMS/WFS/WMTS             │                         │ lit les manifests
-       └─────────────────────────►│                         │ `geoserver/layer-manifests`
+       │ WMS/WFS/WMTS             │                         │ importe GeoServer
+       └─────────────────────────►│                         │ + applique les overrides
                                   └────────────────────────► GeoServer (https://gis.virunga.org/)
 ```
 
 ## État de l'implémentation
 
-- les couches publiques sont décrites par des manifests JSON versionnés ;
+- les couches publiques sont importées automatiquement depuis GeoServer ;
+- des manifests JSON versionnés peuvent surcharger localement une couche importée ;
 - le backend expose ces manifests via `/api/v1/catalog`, `/api/v1/themes`, `/api/v1/layers`, `/api/v1/metadata/:layerId` ;
 - le backend charge le catalogue au démarrage et le rafraîchit selon `CATALOG_REFRESH_CRON` ;
 - le frontend `/map` consomme cet endpoint et instancie des couches WMS GeoServer dans MapLibre ;
@@ -32,7 +33,7 @@ Portail WebGIS public à 3 couches logiques :
 
 - **Pas de conteneurisation** : binaires natifs, supervisés par PM2 ou systemd.
 - **Nginx** : seul point d'entrée TLS, proxy `/` → frontend (3000), `/api/` → backend (3001).
-- **Backend stateless** ; le catalogue courant provient du système de fichiers et de GeoServer.
+- **Backend stateless** ; le catalogue courant provient de GeoServer et d'overrides fichiers optionnels.
 - **GeoServer non remplacé** : le backend vérifie et normalise les URLs de services déjà publiés.
 - **Base de données applicative reportée** : le schéma `portal_app` reste une étape future.
 

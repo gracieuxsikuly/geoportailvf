@@ -20,6 +20,48 @@ describe('Public API contract', () => {
     })
       .overrideProvider(GeoserverService)
       .useValue({
+        discoverLayerManifests: jest.fn().mockResolvedValue([
+          {
+            id: 'virunga-virunga-boundary',
+            slug: 'virunga-boundary',
+            title: { fr: 'Virunga Boundary', en: 'Virunga Boundary' },
+            theme: 'virunga',
+            service: {
+              type: 'WMS',
+              url: 'https://gis.virunga.org/geoserver/virunga/wms',
+              wmsUrl: 'https://gis.virunga.org/geoserver/virunga/wms',
+              wfsUrl: 'https://gis.virunga.org/geoserver/virunga/ows?service=WFS',
+              wmtsUrl: 'https://gis.virunga.org/geoserver/gwc/service/wmts',
+              workspace: 'virunga',
+              layer: 'virunga:virunga_boundary',
+              style: 'virunga_boundary',
+            },
+            metadata: {
+              keywords: ['boundary'],
+            },
+            sensitivity: 'public',
+          },
+          {
+            id: 'virunga-roads-network',
+            slug: 'roads-network',
+            title: { fr: 'Roads Network', en: 'Roads Network' },
+            theme: 'transport',
+            service: {
+              type: 'WMS',
+              url: 'https://gis.virunga.org/geoserver/virunga/wms',
+              wmsUrl: 'https://gis.virunga.org/geoserver/virunga/wms',
+              wfsUrl: 'https://gis.virunga.org/geoserver/virunga/ows?service=WFS',
+              wmtsUrl: 'https://gis.virunga.org/geoserver/gwc/service/wmts',
+              workspace: 'virunga',
+              layer: 'virunga:roads_network',
+              style: 'roads_network',
+            },
+            metadata: {
+              keywords: ['roads'],
+            },
+            sensitivity: 'public',
+          },
+        ]),
         checkHealth: jest.fn().mockResolvedValue({
           status: 'ok',
           url: 'https://gis.virunga.org/geoserver',

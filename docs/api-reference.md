@@ -35,6 +35,12 @@ Le backend public expose uniquement des endpoints en lecture. Les reponses suive
 
 ## Catalogue
 
+Source de verite actuelle :
+
+- import automatique des layers publics exposes par le `WMS GetCapabilities` de GeoServer ;
+- surcharges locales facultatives par couche via `geoserver/layer-manifests/*.json` ;
+- catalogue final stable renvoye au frontend par le backend.
+
 `GET /api/v1/catalog`
 
 ```json
@@ -159,10 +165,11 @@ Codes standards : `BAD_REQUEST`, `NOT_FOUND`, `RATE_LIMIT_EXCEEDED`, `INTERNAL_S
 
 ## Rafraichissement catalogue
 
-- Chargement initial au demarrage du backend.
+- Import initial GeoServer au demarrage du backend.
 - Rechargement planifie via `CATALOG_REFRESH_CRON` (par defaut `*/15 * * * *`).
 - Conservation en memoire du dernier snapshot valide si une synchronisation echoue.
 - Script manuel disponible : `npm --workspace backend run sync:catalog`.
+- En mode `hybrid`, les manifests locaux surchargent facultativement les couches importees depuis GeoServer.
 
 ## Contrat frontend
 
@@ -170,3 +177,4 @@ Codes standards : `BAD_REQUEST`, `NOT_FOUND`, `RATE_LIMIT_EXCEEDED`, `INTERNAL_S
 - Pour une carte simple, `/api/v1/layers` suffit et retourne uniquement les couches publiques.
 - Les URLs `services.wms`, `services.wfs`, `services.wmts` et `services.legend` sont deja normalisees.
 - Les couches non publiques (`restricted`, `confidential`) ne sont pas retournees par l'API publique.
+- Une couche nouvellement publiee dans GeoServer peut apparaitre sans manifest local ; un manifest sert uniquement a l'adapter pour le portail.
