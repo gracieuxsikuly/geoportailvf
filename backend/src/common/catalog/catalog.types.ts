@@ -1,27 +1,44 @@
+export type CatalogSource = 'geoserver' | 'manifest' | 'hybrid';
+
+export type CatalogServiceType = 'WMS' | 'WFS' | 'WMTS';
+
+export type SensitivityLevel = 'public' | 'restricted' | 'confidential';
+
+export interface LocalizedText {
+  fr: string;
+  en: string;
+}
+
 export interface CatalogLayerManifest {
   id: string;
   slug: string;
-  title?: {
-    fr?: string;
-    en?: string;
-  };
+  title?: Partial<LocalizedText>;
   theme?: string;
+  themeLabel?: Partial<LocalizedText>;
   service: {
     type: string;
     url?: string;
+    wmsUrl?: string;
+    wfsUrl?: string;
+    wmtsUrl?: string | null;
+    legendUrl?: string;
     workspace: string;
     layer: string;
     style?: string;
   };
   display?: {
     defaultOpacity?: number;
+    opacity?: number;
     minZoom?: number;
     maxZoom?: number;
     visibleByDefault?: boolean;
+    visible?: boolean;
+    sortOrder?: number;
   };
   metadata?: {
     source?: string;
     updateDate?: string;
+    updatedAt?: string;
     license?: string;
     descriptionFr?: string;
     descriptionEn?: string;
@@ -32,62 +49,81 @@ export interface CatalogLayerManifest {
     inspireTheme?: string;
     isoTopicCategory?: string;
   };
-  sensitivity?: 'public' | 'restricted' | 'confidential';
+  sensitivity?: SensitivityLevel;
   popup?: {
+    enabled?: boolean;
     fields?: string[];
   };
 }
 
 export interface CatalogLayerMetadata {
-  id: string;
-  layerId: string;
-  sourceOrg?: string;
-  updateDate?: string;
+  source?: string;
+  updatedAt?: string;
   license?: string;
   descriptionFr?: string;
   descriptionEn?: string;
   qualityLevel?: number;
-  contactEmail?: string;
-  legendUrl?: string;
   keywords: string[];
-  inspireTheme?: string;
-  isoTopicCategory?: string;
 }
 
-export interface CatalogThemeSummary {
+export interface CatalogLayerServices {
+  wms: string | null;
+  wfs: string | null;
+  wmts: string | null;
+  legend: string | null;
+}
+
+export interface CatalogPopup {
+  enabled: boolean;
+  fields: string[];
+}
+
+export interface CatalogTheme {
   id: string;
-  code: string;
-  labelFr: string;
-  labelEn: string;
+  slug: string;
+  label: LocalizedText;
   sortOrder: number;
-  isVisible: boolean;
+  visible: boolean;
+  layerCount: number;
 }
 
 export interface CatalogLayer {
   id: string;
   slug: string;
-  titleFr: string;
-  titleEn: string;
+  title: LocalizedText;
   themeId: string;
-  serviceType: string;
-  geoserverUrl: string;
+  themeLabel: LocalizedText;
+  serviceType: CatalogServiceType;
   workspace: string;
   layerName: string;
-  styleName?: string;
-  defaultOpacity: number;
+  styleName: string | null;
+  services: CatalogLayerServices;
+  visible: boolean;
+  opacity: number;
   minZoom: number;
   maxZoom: number;
-  isVisibleDefault: boolean;
-  isPublic: boolean;
   sortOrder: number;
-  sensitivityLevel: 'public' | 'restricted' | 'confidential';
-  popupFields: { fields: string[] } | null;
+  sensitivityLevel: SensitivityLevel;
   metadata: CatalogLayerMetadata | null;
-  theme?: CatalogThemeSummary;
+  popup: CatalogPopup;
 }
 
-export interface CatalogTheme extends CatalogThemeSummary {
+export interface CatalogPayload {
   layers: CatalogLayer[];
+  themes: CatalogTheme[];
+}
+
+export interface CatalogSyncError {
+  field: string;
+  code: string;
+  detail: string;
+}
+
+export interface CatalogSnapshot extends CatalogPayload {
+  source: CatalogSource;
+  refreshedAt: string;
+  total: number;
+  errors: CatalogSyncError[];
 }
 
 export interface AuditRecord {

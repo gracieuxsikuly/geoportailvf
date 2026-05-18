@@ -25,6 +25,14 @@ export class AppConfigService {
     return this.config.get<string>('GEOSERVER_ADMIN_PASSWORD');
   }
 
+  get catalogSource(): 'geoserver' | 'manifest' | 'hybrid' {
+    return this.config.get<'geoserver' | 'manifest' | 'hybrid'>('CATALOG_SOURCE', 'hybrid');
+  }
+
+  get catalogRefreshCron(): string {
+    return this.config.get<string>('CATALOG_REFRESH_CRON', '*/15 * * * *');
+  }
+
   get frontendUrl(): string {
     return this.config.get<string>('FRONTEND_URL', 'http://localhost:3000');
   }

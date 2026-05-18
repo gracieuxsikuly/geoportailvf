@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import '../styles/globals.css';
+import '@/styles/globals.css' assert { type: 'css' };
 
 export const metadata: Metadata = {
   title: 'Virunga WebGIS — Parc National des Virunga',

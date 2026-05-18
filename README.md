@@ -14,16 +14,16 @@ La fondation est volontairement **sans conteneurisation** : exécution native No
 
 Le projet est prêt jusqu'au niveau suivant :
 
-- backend NestJS opérationnel sur `http://localhost:3001` ;
+- backend NestJS public opérationnel sur `http://localhost:3001` ;
 - frontend Next.js opérationnel sur `http://localhost:3000` ;
-- catalogue des couches lu depuis les fichiers JSON de `geoserver/layer-manifests/` ;
+- catalogue des couches lu depuis les fichiers JSON de `geoserver/layer-manifests/`, normalisé et rafraîchi automatiquement en mémoire ;
 - aucune base de données requise pour démarrer ;
 - aucun Redis requis pour démarrer ;
 - un premier manifest d'exemple est déjà présent : `geoserver/layer-manifests/virunga_boundary.json`.
 
 ## Stack
 
-- **Backend** : Node.js, TypeScript, NestJS, catalogue GeoServer/manifests, Socket.IO, OpenAPI/Swagger
+- **Backend** : Node.js, TypeScript, NestJS, catalogue GeoServer/manifests, OpenAPI/Swagger, synchronisation planifiée
 - **Frontend** : TypeScript, Next.js (App Router), MapLibre GL JS, Zustand, TanStack Query, Tailwind CSS, shadcn/ui
 - **Infra** : Nginx (reverse proxy), PM2 ou systemd (supervision)
 
@@ -90,6 +90,8 @@ Dans `backend/.env`, utiliser au minimum :
 
 ```env
 GEOSERVER_URL=https://gis.virunga.org/geoserver
+CATALOG_SOURCE=hybrid
+CATALOG_REFRESH_CRON=*/15 * * * *
 NODE_ENV=development
 PORT=3001
 FRONTEND_URL=http://localhost:3000
@@ -174,7 +176,7 @@ Le backend lit les manifests depuis le système de fichiers. Il n'y a pas encore
 
 - `EADDRINUSE: address already in use :::3000` ou `:::3001` : un serveur tourne déjà sur ce port ;
 - si GeoServer est inaccessible, l'application démarre quand même, mais les couches distantes ne seront pas consultables correctement ;
-- si vous ajoutez un nouveau manifest, vérifiez d'abord sa structure JSON ;
+- si vous ajoutez un nouveau manifest, vérifiez d'abord sa structure JSON puis attendez le prochain rafraîchissement ou lancez `npm --workspace backend run sync:catalog` ;
 - si vous modifiez les variables d'environnement, redémarrez le backend et le frontend.
 
 ## Production sans conteneurisation

@@ -1,17 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CatalogService } from '../common/catalog/catalog.service';
+import { CatalogLayer } from '../common/catalog/catalog.types';
 
 @Injectable()
 export class LayersService {
   constructor(private readonly catalog: CatalogService) {}
 
-  findAllPublic() {
-    return this.catalog.listLayers().filter((layer) => layer.isPublic);
+  findAllPublic(): CatalogLayer[] {
+    return this.catalog.listLayers();
   }
 
-  async findBySlug(slug: string) {
+  findBySlug(slug: string): CatalogLayer {
     const layer = this.catalog.findLayerBySlug(slug);
-    if (!layer) throw new NotFoundException(`Layer ${slug} not found`);
+    if (!layer) {
+      throw new NotFoundException(`Layer ${slug} not found`);
+    }
     return layer;
   }
 }

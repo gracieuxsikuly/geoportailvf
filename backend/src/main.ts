@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { ApiExceptionFilter } from './common/filters/api-exception.filter';
 import { AppConfigService } from './config/config.service';
 
 async function bootstrap(): Promise<void> {
@@ -32,11 +33,18 @@ async function bootstrap(): Promise<void> {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Virunga WebGIS API')
-    .setDescription('API publique et d\'administration du portail Virunga WebGIS')
+    .setDescription('API publique de catalogue WebGIS, lecture GeoServer et manifests versionnes')
     .setVersion('1.0')
+    .addTag('catalog', 'Catalogue public normalise des couches GeoServer')
+    .addTag('themes', 'Thematiques visibles du portail')
+    .addTag('layers', 'Couches publiques exploitables par le frontend')
+    .addTag('metadata', 'Metadonnees publiques simplifiees des couches')
+    .addTag('geoserver', 'Controle technique des services GeoServer existants')
+    .addTag('health', 'Etat de fonctionnement du backend public')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
