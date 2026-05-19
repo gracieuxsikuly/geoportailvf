@@ -5,6 +5,9 @@ export const VIRUNGA_BOUNDS: [[number, number], [number, number]] = [
   [30.5, 0.2],
 ];
 
+/** Rayon du buffer affiché après géolocalisation (km) */
+export const USER_LOCATION_BUFFER_KM = 5;
+
 export const GEOSERVER_URL =
   process.env.NEXT_PUBLIC_GEOSERVER_URL ?? 'https://gis.virunga.org/geoserver';
 

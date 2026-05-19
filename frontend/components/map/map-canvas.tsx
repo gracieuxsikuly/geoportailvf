@@ -6,6 +6,7 @@ import { useLayerStore } from '@/store/layer.store';
 import { useMapStore } from '@/store/map.store';
 import { buildBasemapStyle } from '@/lib/map/basemaps';
 import { syncMapLayers } from '@/lib/map/sync-map-layers';
+import { syncUserLocationOnMap } from '@/lib/map/sync-user-location';
 import { fetchWmsFeatureInfo } from '@/lib/map/wms';
 import type { Layer } from '@/types/catalog';
 import { VIRUNGA_CENTER, VIRUNGA_ZOOM } from '@/lib/constants';
@@ -26,6 +27,7 @@ export function MapCanvas() {
   const measureMode = useMapStore((s) => s.measureMode);
   const measurePoints = useMapStore((s) => s.measurePoints);
   const measureFinished = useMapStore((s) => s.measureFinished);
+  const userLocation = useMapStore((s) => s.userLocation);
   const setMapInstance = useMapStore((s) => s.setMapInstance);
   const setView = useMapStore((s) => s.setView);
   const setCursorLngLat = useMapStore((s) => s.setCursorLngLat);
@@ -230,7 +232,11 @@ export function MapCanvas() {
       return;
     }
 
-    const onStyleLoad = () => runSyncLayers();
+    const onStyleLoad = () => {
+      runSyncLayers();
+      const loc = useMapStore.getState().userLocation;
+      if (loc) syncUserLocationOnMap(map, loc);
+    };
     map.setStyle(buildBasemapStyle(basemap));
     map.once('style.load', onStyleLoad);
 
@@ -265,6 +271,22 @@ export function MapCanvas() {
     if (map.isStyleLoaded()) draw();
     else map.once('load', draw);
   }, [measureMode, measurePoints, syncMeasureLayers]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const draw = () => {
+      try {
+        syncUserLocationOnMap(map, userLocation);
+      } catch {
+        map.once('idle', () => syncUserLocationOnMap(map, userLocation));
+      }
+    };
+
+    if (map.isStyleLoaded()) draw();
+    else map.once('load', draw);
+  }, [userLocation]);
 
   return (
     <div ref={containerRef} className="absolute inset-0" role="application" aria-label="Carte interactive" />

@@ -25,7 +25,9 @@ interface MapStore {
   measureMode: MeasureMode | null;
   measurePoints: [number, number][];
   measureFinished: boolean;
+  userLocation: [number, number] | null;
   setMapInstance: (map: MapLibreMap | null) => void;
+  setUserLocation: (location: [number, number] | null) => void;
   setCenter: (center: [number, number]) => void;
   setZoom: (zoom: number) => void;
   setView: (center: [number, number], zoom: number) => void;
@@ -48,7 +50,9 @@ export const useMapStore = create<MapStore>((set) => ({
   measureMode: null,
   measurePoints: [],
   measureFinished: false,
+  userLocation: null,
   setMapInstance: (mapInstance) => set({ mapInstance }),
+  setUserLocation: (userLocation) => set({ userLocation }),
   setCenter: (center) => set({ center }),
   setZoom: (zoom) => set({ zoom }),
   setView: (center, zoom) => set({ center, zoom }),

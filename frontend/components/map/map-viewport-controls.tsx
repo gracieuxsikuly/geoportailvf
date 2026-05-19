@@ -3,19 +3,23 @@
 import { LocateFixed, Minus, Mountain, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { VIRUNGA_BOUNDS } from '@/lib/constants';
+import { boundsFromRing, circleRing } from '@/lib/map/buffer-circle';
+import { USER_LOCATION_BUFFER_KM, VIRUNGA_BOUNDS } from '@/lib/constants';
 import { useMapStore } from '@/store/map.store';
 import { cn } from '@/lib/utils';
 
 export function MapViewportControls() {
   const { t } = useTranslation('common');
   const map = useMapStore((s) => s.mapInstance);
+  const userLocation = useMapStore((s) => s.userLocation);
+  const setUserLocation = useMapStore((s) => s.setUserLocation);
 
   const zoomIn = () => map?.zoomIn({ duration: 200 });
   const zoomOut = () => map?.zoomOut({ duration: 200 });
 
   const centerOnPark = () => {
     if (!map) return;
+    setUserLocation(null);
     map.fitBounds(
       [
         [VIRUNGA_BOUNDS[0][0], VIRUNGA_BOUNDS[0][1]],
@@ -26,14 +30,21 @@ export function MapViewportControls() {
   };
 
   const locateUser = () => {
-    if (!map || !navigator.geolocation) return;
+    if (!map) return;
+
+    if (userLocation) {
+      setUserLocation(null);
+      return;
+    }
+
+    if (!navigator.geolocation) return;
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        map.flyTo({
-          center: [pos.coords.longitude, pos.coords.latitude],
-          zoom: Math.max(map.getZoom(), 12),
-          duration: 800,
-        });
+        const center: [number, number] = [pos.coords.longitude, pos.coords.latitude];
+        setUserLocation(center);
+        const ring = circleRing(center, USER_LOCATION_BUFFER_KM);
+        map.fitBounds(boundsFromRing(ring), { padding: 56, duration: 800, maxZoom: 13 });
       },
       () => undefined,
       { enableHighAccuracy: true, timeout: 10_000 },
@@ -86,10 +97,14 @@ export function MapViewportControls() {
         type="button"
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-none hover:bg-stone-50"
+        className={cn(
+          'h-10 w-10 rounded-none hover:bg-stone-50',
+          userLocation && 'bg-blue-50 text-blue-700 hover:bg-blue-100',
+        )}
         onClick={locateUser}
         disabled={!map}
         aria-label={t('mapControls.locate')}
+        aria-pressed={Boolean(userLocation)}
       >
         <LocateFixed className="h-4 w-4" />
       </Button>
