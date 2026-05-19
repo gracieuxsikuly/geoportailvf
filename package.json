@@ -10,6 +10,7 @@
   "scripts": {
     "setup": "node scripts/setup-env.mjs",
     "postinstall": "node scripts/setup-env.mjs",
+    "dev": "npm run setup && node scripts/run-dev.mjs",
     "dev:backend": "npm run setup && node scripts/run-backend-dev.mjs",
     "dev:frontend": "npm run setup && node scripts/run-frontend-dev.mjs",
     "build:backend": "npm --workspace backend run build",

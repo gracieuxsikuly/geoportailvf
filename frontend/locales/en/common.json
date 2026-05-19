@@ -1,10 +1,74 @@
 {
-  "common": {
-    "appName": "Virunga WebGIS",
+  "appName": "Virunga WebGIS",
+  "map": "Map",
+  "about": "About",
+  "layers": "Layers",
+  "search": "Search",
+  "loading": "Loading...",
+  "nav": {
+    "home": "Home",
     "map": "Map",
+    "catalog": "Catalog",
+    "themes": "Themes",
     "about": "About",
-    "layers": "Layers",
-    "search": "Search",
-    "loading": "Loading..."
+    "menu": "Menu",
+    "language": "Change language"
+  },
+  "footer": {
+    "tagline": "Public mapping portal for Virunga National Park, supporting understanding and conservation.",
+    "about": "About the portal",
+    "park": "The park",
+    "help": "Help",
+    "legal": "Legal notice",
+    "privacy": "Privacy",
+    "credits": "Sources & credits",
+    "dataSource": "Geospatial data",
+    "rights": "All rights reserved",
+    "partners": "Institutional partners"
+  },
+  "home": {
+    "title": "Understand Virunga National Park",
+    "subtitle": "Explore landscapes, biodiversity, communities and conservation challenges through a pedagogical mapping experience.",
+    "cta": "Open interactive map",
+    "themesTitle": "Explore by theme",
+    "themesSubtitle": "Pedagogical entry points to read the map according to your question."
+  },
+  "mapPanel": {
+    "themesTitle": "Themes",
+    "datasetsTitle": "Layers visible on the map",
+    "navigateBy": "Browse by theme",
+    "classification": "Virunga National Park datasets",
+    "activateAll": "Enable all layers",
+    "learnMore": "Learn more",
+    "noLayersYet": "No published layers for this theme yet."
+  },
+  "layersPanel": {
+    "all": "All",
+    "empty": "No layer matches your search.",
+    "opacity": "Opacity",
+    "show": "Show",
+    "hide": "Hide"
+  },
+  "portal": {
+    "tagline": "Virunga National Park geoportal",
+    "title": "Virunga National Park geodata portal",
+    "subtitle": "View geographic data, browse the catalog and understand the challenges of Africa's oldest national park.",
+    "mapTitle": "Browse the map",
+    "mapDesc": "View data and associated web services on an interactive map.",
+    "mapCta": "Open the map",
+    "catalogTitle": "Browse the catalog",
+    "catalogDesc": "Browse public layers, metadata and GeoServer services.",
+    "catalogCta": "Open the catalog",
+    "statLayers": "Public layers",
+    "statThemes": "Themes",
+    "statServices": "WMS services",
+    "statSource": "Data source",
+    "recentTitle": "Recently updated",
+    "recentSubtitle": "Latest layers referenced in the portal catalog.",
+    "backendOffline": "Backend API offline — demo data shown. Start the backend:"
+  },
+  "catalog": {
+    "title": "Layer catalog",
+    "subtitle": "Public layers served via GeoServer and referenced by the portal."
   }
 }
