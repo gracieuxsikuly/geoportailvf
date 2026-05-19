@@ -1,19 +1,66 @@
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 222 47% 11%;
+  --virunga-green: 145 80% 28%;
+  --virunga-forest: 152 55% 22%;
+  --virunga-lake: 205 76% 42%;
+  --radius-lg: 1rem;
+  --shadow-soft: 0 4px 24px -4px rgb(0 0 0 / 0.08);
 }
 
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  color: hsl(var(--foreground));
-  background-color: hsl(var(--background));
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    color: hsl(var(--foreground));
+    background-color: #fafaf9;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-html, body, #__next {
-  height: 100%;
-  margin: 0;
+.prose h2 {
+  @apply mt-8 text-xl font-semibold text-stone-900;
+}
+
+.prose p {
+  @apply mt-3 leading-relaxed;
+}
+
+.prose ul {
+  @apply mt-3 list-disc space-y-2 pl-6;
+}
+
+.prose code {
+  @apply rounded bg-stone-100 px-1 py-0.5 text-sm;
+}
+
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+  background: rgb(255 255 255 / 0.85) !important;
+  border-radius: 6px 0 0 0;
+}
+
+.maplibregl-ctrl-group {
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+@keyframes hero-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
 }

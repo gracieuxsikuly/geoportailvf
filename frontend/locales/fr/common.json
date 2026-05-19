@@ -1,10 +1,74 @@
 {
-  "common": {
-    "appName": "Virunga WebGIS",
+  "appName": "Virunga WebGIS",
+  "map": "Carte",
+  "about": "À propos",
+  "layers": "Couches",
+  "search": "Rechercher",
+  "loading": "Chargement...",
+  "nav": {
+    "home": "Accueil",
     "map": "Carte",
+    "catalog": "Catalogue",
+    "themes": "Thématiques",
     "about": "À propos",
-    "layers": "Couches",
-    "search": "Rechercher",
-    "loading": "Chargement..."
+    "menu": "Menu",
+    "language": "Changer de langue"
+  },
+  "footer": {
+    "tagline": "Portail cartographique public du Parc National des Virunga, au service de la compréhension et de la conservation.",
+    "about": "À propos du portail",
+    "park": "Le parc",
+    "help": "Aide",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "credits": "Sources & crédits",
+    "dataSource": "Données géospatiales",
+    "rights": "Tous droits réservés",
+    "partners": "Partenaires institutionnels"
+  },
+  "home": {
+    "title": "Comprendre le Parc des Virunga",
+    "subtitle": "Explorez paysages, biodiversité, populations et enjeux de conservation à travers une expérience cartographique pédagogique.",
+    "cta": "Ouvrir la carte interactive",
+    "themesTitle": "Explorer par thématique",
+    "themesSubtitle": "Des entrées pédagogiques pour lire la carte selon votre question."
+  },
+  "mapPanel": {
+    "themesTitle": "Thématiques",
+    "datasetsTitle": "Couches visualisables sur la carte",
+    "navigateBy": "Naviguer par thématique",
+    "classification": "Jeux de données du Parc National des Virunga",
+    "activateAll": "Activer toutes les couches",
+    "learnMore": "En savoir plus",
+    "noLayersYet": "Aucune couche publiée pour cette thématique pour le moment."
+  },
+  "layersPanel": {
+    "all": "Toutes",
+    "empty": "Aucune couche ne correspond à votre recherche.",
+    "opacity": "Opacité",
+    "show": "Afficher",
+    "hide": "Masquer"
+  },
+  "portal": {
+    "tagline": "Géoportail du Parc National des Virunga",
+    "title": "Portail des géo-données du Parc des Virunga",
+    "subtitle": "Visualisez les données géographiques, explorez le catalogue et comprenez les enjeux du plus ancien parc d'Afrique.",
+    "mapTitle": "Naviguer sur la carte",
+    "mapDesc": "Visualiser les données et services web associés sur une carte interactive.",
+    "mapCta": "Visitez la carte",
+    "catalogTitle": "Naviguer dans le catalogue",
+    "catalogDesc": "Consulter l'inventaire des couches publiques, leurs métadonnées et services GeoServer.",
+    "catalogCta": "Visitez le catalogue",
+    "statLayers": "Couches publiques",
+    "statThemes": "Thématiques",
+    "statServices": "Services WMS",
+    "statSource": "Source des données",
+    "recentTitle": "Mises à jour récemment",
+    "recentSubtitle": "Dernières couches référencées dans le catalogue du portail.",
+    "backendOffline": "API backend hors ligne — données de démonstration affichées. Démarrez le backend :"
+  },
+  "catalog": {
+    "title": "Catalogue des couches",
+    "subtitle": "Couches publiques diffusées via GeoServer et référencées par le portail."
   }
 }

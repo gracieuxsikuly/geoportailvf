@@ -1,15 +1,34 @@
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
+import { getApiBaseUrl } from '@/lib/api-config';
+
+let backendUnavailableLogged = false;
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:3001',
+  baseURL: getApiBaseUrl(),
   timeout: 15_000,
 });
 
 apiClient.interceptors.response.use(
   (res) => res,
-  (error) => {
-    // eslint-disable-next-line no-console
-    console.error('[apiClient]', error?.response?.status, error?.message);
+  (error: AxiosError) => {
+    const isNetwork =
+      error.code === 'ERR_NETWORK' ||
+      error.message === 'Network Error' ||
+      !error.response;
+
+    if (isNetwork) {
+      if (process.env.NODE_ENV === 'development' && !backendUnavailableLogged) {
+        backendUnavailableLogged = true;
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[apiClient] Backend injoignable — mode démo actif. Lancez : npm run dev:backend',
+        );
+      }
+    } else if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.warn('[apiClient]', error.response?.status, error.message);
+    }
+
     return Promise.reject(error);
   },
 );

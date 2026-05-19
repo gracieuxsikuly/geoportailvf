@@ -1,11 +1,17 @@
+import { StaticPage } from '@/components/content/static-page';
+
 export default function AboutPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-4xl font-bold">À propos</h1>
-      <p className="mt-4 text-gray-700">
-        Plateforme WebGIS publique de la Fondation Virunga. Données issues du système SIG
-        (PostGIS + GeoServer sur gis.virunga.org).
+    <StaticPage title="À propos du portail">
+      <p>
+        Virunga WebGIS est le portail cartographique public de la Virunga Fondation. Il permet au
+        grand public d’explorer le Parc National des Virunga à travers des cartes pédagogiques, des
+        thématiques et un catalogue de couches géographiques.
       </p>
-    </main>
+      <p>
+        Les données proviennent du système SIG institutionnel (PostGIS et GeoServer sur{' '}
+        <code>gis.virunga.org</code>) et sont orchestrées par l’API du portail.
+      </p>
+    </StaticPage>
   );
 }

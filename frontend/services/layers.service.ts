@@ -1,60 +1,26 @@
 import { apiClient } from './api.client';
+import { API_PREFIX } from '@/lib/api-config';
+import type { Layer } from '@/types/catalog';
+import { DEMO_LAYERS } from '@/lib/constants';
 
-export interface LayerMetadataDto {
-  id: string;
-  layerId: string;
-  sourceOrg?: string;
-  updateDate?: string;
-  license?: string;
-  descriptionFr?: string;
-  descriptionEn?: string;
-  qualityLevel?: number;
-  contactEmail?: string;
-  legendUrl?: string;
-  keywords: string[];
-  inspireTheme?: string;
-  isoTopicCategory?: string;
-}
-
-export interface LayerThemeDto {
-  id: string;
-  code: string;
-  labelFr: string;
-  labelEn: string;
-  sortOrder: number;
-  isVisible: boolean;
-}
-
-export interface LayerDto {
-  id: string;
-  slug: string;
-  titleFr: string;
-  titleEn: string;
-  themeId: string;
-  serviceType: string;
-  geoserverUrl: string;
-  workspace: string;
-  layerName: string;
-  styleName?: string;
-  defaultOpacity: number;
-  minZoom: number;
-  maxZoom: number;
-  isVisibleDefault: boolean;
-  isPublic: boolean;
-  sortOrder: number;
-  sensitivityLevel: 'public' | 'restricted' | 'confidential';
-  popupFields?: Record<string, unknown> | null;
-  metadata?: LayerMetadataDto | null;
-  theme?: LayerThemeDto;
-}
+export type LayerDto = Layer;
 
 export const layersService = {
-  list: async (): Promise<LayerDto[]> => {
-    const { data } = await apiClient.get<LayerDto[]>('/api/v1/layers');
-    return data;
+  list: async (): Promise<Layer[]> => {
+    try {
+      const { data } = await apiClient.get<Layer[]>(`${API_PREFIX}/layers`);
+      return data;
+    } catch {
+      return DEMO_LAYERS;
+    }
   },
-  bySlug: async (slug: string): Promise<LayerDto> => {
-    const { data } = await apiClient.get<LayerDto>(`/api/v1/layers/${slug}`);
-    return data;
+
+  bySlug: async (slug: string): Promise<Layer | null> => {
+    try {
+      const { data } = await apiClient.get<Layer>(`${API_PREFIX}/layers/${slug}`);
+      return data;
+    } catch {
+      return DEMO_LAYERS.find((l) => l.slug === slug) ?? null;
+    }
   },
 };
