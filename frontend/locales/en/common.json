@@ -8,7 +8,7 @@
   "nav": {
     "home": "Home",
     "map": "Map",
-    "catalog": "Catalog",
+    "catalog": "Theme",
     "themes": "Themes",
     "about": "About",
     "menu": "Menu",
@@ -70,5 +70,28 @@
   "catalog": {
     "title": "Layer catalog",
     "subtitle": "Public layers served via GeoServer and referenced by the portal."
+  },
+  "mapControls": {
+    "group": "Map controls",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "centerPark": "Center on Virunga National Park",
+    "locate": "My location"
+  },
+  "mapMeasure": {
+    "toggle": "Measure tool",
+    "title": "Measure",
+    "distance": "Distance",
+    "area": "Area",
+    "hint": "Click on the map to place points. Area mode requires at least 3 points.",
+    "points": "Points",
+    "distanceLabel": "Distance",
+    "areaLabel": "Area",
+    "finish": "Finish",
+    "clear": "Clear",
+    "close": "Close"
+  },
+  "mapShare": {
+    "title": "Share map"
   }
 }

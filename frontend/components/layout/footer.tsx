@@ -5,12 +5,14 @@ import { asRoute } from '@/lib/navigation';
 import { PartnerLogos } from '@/components/layout/partner-logos';
 import { useTranslation } from 'react-i18next';
 
+const VIRUNGA_PARK_URL = 'https://virunga.org/';
+
 const LINKS = [
-  { href: '/about', key: 'footer.about' },
-  { href: '/parc', key: 'footer.park' },
-  { href: '/legal', key: 'footer.legal' },
-  { href: '/privacy', key: 'footer.privacy' },
-  { href: '/credits', key: 'footer.credits' },
+  { href: '/about', key: 'footer.about', external: false },
+  { href: VIRUNGA_PARK_URL, key: 'footer.park', external: true },
+  { href: '/legal', key: 'footer.legal', external: false },
+  { href: '/privacy', key: 'footer.privacy', external: false },
+  { href: '/credits', key: 'footer.credits', external: false },
 ] as const;
 
 export function Footer() {
@@ -41,15 +43,27 @@ export function Footer() {
             <p className="mt-2 max-w-sm text-sm text-emerald-50/85">{t('footer.tagline')}</p>
           </div>
           <nav className="flex flex-wrap gap-x-4 gap-y-2 text-sm" aria-label="Liens institutionnels">
-            {LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={asRoute(link.href)}
-                className="text-emerald-50/85 transition-colors hover:text-white"
-              >
-                {t(link.key)}
-              </Link>
-            ))}
+            {LINKS.map((link) =>
+              link.external ? (
+                <a
+                  key={link.key}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-50/85 transition-colors hover:text-white"
+                >
+                  {t(link.key)}
+                </a>
+              ) : (
+                <Link
+                  key={link.key}
+                  href={asRoute(link.href)}
+                  className="text-emerald-50/85 transition-colors hover:text-white"
+                >
+                  {t(link.key)}
+                </Link>
+              ),
+            )}
           </nav>
           <div className="text-sm text-emerald-50/75">
             <p>{t('footer.dataSource')}</p>

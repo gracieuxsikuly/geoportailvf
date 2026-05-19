@@ -18,7 +18,7 @@ const NAV = [
   { href: '/about', key: 'nav.about' },
 ] as const;
 
-export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
+export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const pathname = usePathname();
   const { t } = useTranslation('common');
   const { locale, setLocale } = useUiStore();
@@ -35,18 +35,16 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
     >
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between gap-4 px-4 lg:px-8">
         <div className="flex items-center gap-3">
-          {onMenuClick ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={onMenuClick}
-              aria-label={t('nav.menu')}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={onMenuClick}
+            aria-label={t('nav.menu')}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
           <Link href="/" className="group flex items-center gap-3">
             <Image
               src={BRAND.logo}

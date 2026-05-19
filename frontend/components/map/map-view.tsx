@@ -10,6 +10,7 @@ import { parseMapUrlState } from '@/lib/map/url-state';
 import { VIRUNGA_CENTER, VIRUNGA_ZOOM } from '@/lib/constants';
 import { ThematicLayerPanel } from './thematic-layer-panel';
 import { MapControls } from './map-controls';
+import { MapViewportControls } from './map-viewport-controls';
 import { LegendPanel } from './legend-panel';
 import { MapPopup } from './map-popup';
 import { MapSearch } from './map-search';
@@ -57,6 +58,7 @@ export function MapView() {
         ) : null}
         <MapCanvas />
         <MapControls />
+        <MapViewportControls />
         <LegendPanel />
         <MapPopup />
         <MapSearch />
