@@ -10,17 +10,9 @@ import { fetchWmsFeatureInfo } from '@/lib/map/wms';
 import type { Layer } from '@/types/catalog';
 import { VIRUNGA_CENTER, VIRUNGA_ZOOM } from '@/lib/constants';
 
-function haversineKm(a: [number, number], b: [number, number]): number {
-  const R = 6371;
-  const dLat = ((b[1] - a[1]) * Math.PI) / 180;
-  const dLon = ((b[0] - a[0]) * Math.PI) / 180;
-  const lat1 = (a[1] * Math.PI) / 180;
-  const lat2 = (b[1] * Math.PI) / 180;
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
+const MEASURE_LINE_ID = 'measure-line';
+const MEASURE_FILL_ID = 'measure-fill';
+const MEASURE_POINTS_ID = 'measure-points';
 
 export function MapCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,8 +23,10 @@ export function MapCanvas() {
   const center = useMapStore((s) => s.center);
   const zoom = useMapStore((s) => s.zoom);
   const basemap = useMapStore((s) => s.basemap);
-  const measureActive = useMapStore((s) => s.measureActive);
+  const measureMode = useMapStore((s) => s.measureMode);
   const measurePoints = useMapStore((s) => s.measurePoints);
+  const measureFinished = useMapStore((s) => s.measureFinished);
+  const setMapInstance = useMapStore((s) => s.setMapInstance);
   const setView = useMapStore((s) => s.setView);
   const setCursorLngLat = useMapStore((s) => s.setCursorLngLat);
   const setPopup = useMapStore((s) => s.setPopup);
@@ -40,13 +34,96 @@ export function MapCanvas() {
 
   const catalogRef = useRef(catalog);
   const layerStateRef = useRef(layerState);
+  const measureModeRef = useRef(measureMode);
+  const measureFinishedRef = useRef(false);
   catalogRef.current = catalog;
   layerStateRef.current = layerState;
+  measureModeRef.current = measureMode;
+  measureFinishedRef.current = measureFinished;
 
   const runSyncLayers = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
     syncMapLayers(map, catalogRef.current, layerStateRef.current);
+  }, []);
+
+  const syncMeasureLayers = useCallback((map: MapLibreMap, points: [number, number][]) => {
+    const removeLayer = (id: string) => {
+      if (map.getLayer(id)) map.removeLayer(id);
+    };
+    const removeSource = (id: string) => {
+      if (map.getSource(id)) map.removeSource(id);
+    };
+
+    removeLayer(MEASURE_LINE_ID);
+    removeLayer(MEASURE_FILL_ID);
+    removeLayer(MEASURE_POINTS_ID);
+    removeSource(MEASURE_LINE_ID);
+    removeSource(MEASURE_FILL_ID);
+    removeSource(MEASURE_POINTS_ID);
+
+    if (points.length === 0) return;
+
+    const pointFeatures = points.map((p, i) => ({
+      type: 'Feature' as const,
+      geometry: { type: 'Point' as const, coordinates: p },
+      properties: { index: i + 1 },
+    }));
+
+    map.addSource(MEASURE_POINTS_ID, {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: pointFeatures },
+    });
+    map.addLayer({
+      id: MEASURE_POINTS_ID,
+      type: 'circle',
+      source: MEASURE_POINTS_ID,
+      paint: {
+        'circle-radius': 6,
+        'circle-color': '#0e7a3e',
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#fff',
+      },
+    });
+
+    if (points.length >= 2) {
+      map.addSource(MEASURE_LINE_ID, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates: points },
+          properties: {},
+        },
+      });
+      map.addLayer({
+        id: MEASURE_LINE_ID,
+        type: 'line',
+        source: MEASURE_LINE_ID,
+        paint: { 'line-color': '#0e7a3e', 'line-width': 3 },
+      });
+    }
+
+    const mode = measureModeRef.current;
+    if (mode === 'area' && points.length >= 3) {
+      const ring = [...points, points[0]];
+      map.addSource(MEASURE_FILL_ID, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'Polygon', coordinates: [ring] },
+          properties: {},
+        },
+      });
+      map.addLayer(
+        {
+          id: MEASURE_FILL_ID,
+          type: 'fill',
+          source: MEASURE_FILL_ID,
+          paint: { 'fill-color': '#0e7a3e', 'fill-opacity': 0.2 },
+        },
+        MEASURE_LINE_ID,
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -65,15 +142,9 @@ export function MapCanvas() {
         attributionControl: {},
       });
 
-      map.addControl(new maplibregl.NavigationControl(), 'top-right');
-      map.addControl(
-        new maplibregl.GeolocateControl({
-          positionOptions: { enableHighAccuracy: true },
-          trackUserLocation: false,
-        }),
-        'top-right',
-      );
       map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
+
+      map.getCanvas().style.cursor = '';
 
       map.on('error', () => undefined);
 
@@ -86,7 +157,8 @@ export function MapCanvas() {
       map.on('mouseleave', () => setCursorLngLat(null));
 
       map.on('click', async (e) => {
-        if (measureActive) {
+        if (measureModeRef.current) {
+          if (measureFinishedRef.current) return;
           addMeasurePoint([e.lngLat.lng, e.lngLat.lat]);
           return;
         }
@@ -123,6 +195,7 @@ export function MapCanvas() {
       });
 
       mapRef.current = map;
+      setMapInstance(map);
     }
 
     void init();
@@ -132,6 +205,7 @@ export function MapCanvas() {
       mapRef.current?.remove();
       mapRef.current = null;
       basemapReadyRef.current = false;
+      setMapInstance(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -167,46 +241,33 @@ export function MapCanvas() {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || measurePoints.length < 2) return;
+    if (!map) return;
 
-    const id = 'measure-line';
-    const geojson = {
-      type: 'Feature' as const,
-      geometry: { type: 'LineString' as const, coordinates: measurePoints },
-      properties: {},
+    map.getCanvas().style.cursor = measureMode ? 'crosshair' : '';
+
+    if (!measureMode) {
+      try {
+        syncMeasureLayers(map, []);
+      } catch {
+        /* style may be loading */
+      }
+      return;
+    }
+
+    const draw = () => {
+      try {
+        syncMeasureLayers(map, measurePoints);
+      } catch {
+        map.once('idle', () => syncMeasureLayers(map, measurePoints));
+      }
     };
 
-    try {
-      if (map.getSource(id)) {
-        (map.getSource(id) as unknown as { setData: (d: unknown) => void }).setData(geojson);
-      } else {
-        map.addSource(id, { type: 'geojson', data: geojson });
-        map.addLayer({
-          id,
-          type: 'line',
-          source: id,
-          paint: { 'line-color': '#0e7a3e', 'line-width': 3 },
-        });
-      }
-    } catch {
-      /* ignore */
-    }
-  }, [measurePoints]);
-
-  const measureDistance =
-    measurePoints.length >= 2
-      ? measurePoints.slice(1).reduce((sum, pt, i) => sum + haversineKm(measurePoints[i], pt), 0)
-      : 0;
+    if (map.isStyleLoaded()) draw();
+    else map.once('load', draw);
+  }, [measureMode, measurePoints, syncMeasureLayers]);
 
   return (
-    <>
-      <div ref={containerRef} className="absolute inset-0" role="application" aria-label="Carte interactive" />
-      {measureActive && measurePoints.length >= 2 ? (
-        <div className="absolute bottom-20 left-4 rounded-xl border border-stone-200/80 bg-white/95 px-4 py-2.5 text-sm shadow-lg backdrop-blur">
-          Distance : <strong>{measureDistance.toFixed(2)} km</strong>
-        </div>
-      ) : null}
-    </>
+    <div ref={containerRef} className="absolute inset-0" role="application" aria-label="Carte interactive" />
   );
 }
 

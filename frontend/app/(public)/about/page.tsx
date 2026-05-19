@@ -8,10 +8,6 @@ export default function AboutPage() {
         grand public d’explorer le Parc National des Virunga à travers des cartes pédagogiques, des
         thématiques et un catalogue de couches géographiques.
       </p>
-      <p>
-        Les données proviennent du système SIG institutionnel (PostGIS et GeoServer sur{' '}
-        <code>gis.virunga.org</code>) et sont orchestrées par l’API du portail.
-      </p>
     </StaticPage>
   );
 }

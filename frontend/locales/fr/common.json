@@ -8,7 +8,7 @@
   "nav": {
     "home": "Accueil",
     "map": "Carte",
-    "catalog": "Catalogue",
+    "catalog": "Thématique",
     "themes": "Thématiques",
     "about": "À propos",
     "menu": "Menu",
@@ -70,5 +70,28 @@
   "catalog": {
     "title": "Catalogue des couches",
     "subtitle": "Couches publiques diffusées via GeoServer et référencées par le portail."
+  },
+  "mapControls": {
+    "group": "Contrôles de la carte",
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "centerPark": "Centrer sur le Parc National des Virunga",
+    "locate": "Ma position"
+  },
+  "mapMeasure": {
+    "toggle": "Outil de mesure",
+    "title": "Mesure",
+    "distance": "Distance",
+    "area": "Surface",
+    "hint": "Cliquez sur la carte pour placer des points. En mode surface, au moins 3 points.",
+    "points": "Points",
+    "distanceLabel": "Distance",
+    "areaLabel": "Surface",
+    "finish": "Terminer",
+    "clear": "Effacer",
+    "close": "Fermer"
+  },
+  "mapShare": {
+    "title": "Partager la carte"
   }
 }
