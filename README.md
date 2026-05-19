@@ -6,7 +6,7 @@ Portail WebGIS public dédié au **Parc National des Virunga** pour **Virunga Fo
 
 Plateforme cartographique grand public qui consomme une instance **GeoServer** existante sur **https://gis.virunga.org/**.
 
-Dans la phase actuelle, le portail charge ses couches depuis **GeoServer** et les manipule côté application via les manifests du dossier `geoserver/layer-manifests/`. La couche base de données applicative est reportée à une phase ultérieure.
+Dans la phase actuelle, le portail importe ses couches depuis **GeoServer** puis applique si besoin des surcharges locales via les fichiers du dossier `geoserver/layer-manifests/`. La couche base de données applicative est reportée à une phase ultérieure.
 
 La fondation est volontairement **sans conteneurisation** : exécution native Node.js, supervision **PM2** ou **systemd**, exposition via **Nginx**.
 
@@ -14,16 +14,16 @@ La fondation est volontairement **sans conteneurisation** : exécution native No
 
 Le projet est prêt jusqu'au niveau suivant :
 
-- backend NestJS opérationnel sur `http://localhost:3001` ;
+- backend NestJS public opérationnel sur `http://localhost:3001` ;
 - frontend Next.js opérationnel sur `http://localhost:3000` ;
-- catalogue des couches lu depuis les fichiers JSON de `geoserver/layer-manifests/` ;
+- catalogue des couches importé automatiquement depuis GeoServer, puis enrichi facultativement par les fichiers JSON de `geoserver/layer-manifests/`, normalisé et rafraîchi automatiquement en mémoire ;
 - aucune base de données requise pour démarrer ;
 - aucun Redis requis pour démarrer ;
 - un premier manifest d'exemple est déjà présent : `geoserver/layer-manifests/virunga_boundary.json`.
 
 ## Stack
 
-- **Backend** : Node.js, TypeScript, NestJS, catalogue GeoServer/manifests, Socket.IO, OpenAPI/Swagger
+- **Backend** : Node.js, TypeScript, NestJS, import GeoServer + overrides locaux, OpenAPI/Swagger, synchronisation planifiée
 - **Frontend** : TypeScript, Next.js (App Router), MapLibre GL JS, Zustand, TanStack Query, Tailwind CSS, shadcn/ui
 - **Infra** : Nginx (reverse proxy), PM2 ou systemd (supervision)
 
@@ -90,6 +90,8 @@ Dans `backend/.env`, utiliser au minimum :
 
 ```env
 GEOSERVER_URL=https://gis.virunga.org/geoserver
+CATALOG_SOURCE=hybrid
+CATALOG_REFRESH_CRON=*/15 * * * *
 NODE_ENV=development
 PORT=3001
 FRONTEND_URL=http://localhost:3000
@@ -102,6 +104,7 @@ LOG_LEVEL=info
 Notes :
 
 - `GEOSERVER_ADMIN_USER` et `GEOSERVER_ADMIN_PASSWORD` sont optionnels à ce stade ;
+- `CATALOG_SOURCE=hybrid` importe automatiquement GeoServer puis fusionne les overrides locaux si présents ;
 - aucune variable base de données n'est requise ;
 - aucune variable Redis n'est requise.
 
@@ -164,17 +167,18 @@ Réponse attendue du healthcheck :
 
 Pour exposer une nouvelle couche dans le portail à ce stade :
 
-1. ajouter un fichier JSON dans `geoserver/layer-manifests/` ;
-2. pointer ce manifest vers la couche GeoServer voulue ;
-3. recharger le frontend ou rappeler l'API backend.
+1. publier la couche dans GeoServer ;
+2. laisser le backend l'importer automatiquement au prochain rafraîchissement ;
+3. ajouter un fichier JSON dans `geoserver/layer-manifests/` seulement si tu veux surcharger son titre, sa thématique, sa visibilité, son opacité, ses métadonnées ou son popup.
 
-Le backend lit les manifests depuis le système de fichiers. Il n'y a pas encore de persistance en base de données.
+Le backend n'a pas encore de persistance en base de données. Le catalogue final vient de GeoServer, enrichi localement si nécessaire.
 
 ## Dépannage
 
 - `EADDRINUSE: address already in use :::3000` ou `:::3001` : un serveur tourne déjà sur ce port ;
 - si GeoServer est inaccessible, l'application démarre quand même, mais les couches distantes ne seront pas consultables correctement ;
-- si vous ajoutez un nouveau manifest, vérifiez d'abord sa structure JSON ;
+- si vous publiez une nouvelle couche dans GeoServer, attendez le prochain rafraîchissement ou lancez `npm --workspace backend run sync:catalog` ;
+- si vous ajoutez un manifest d'override, vérifiez d'abord sa structure JSON ;
 - si vous modifiez les variables d'environnement, redémarrez le backend et le frontend.
 
 ## Production sans conteneurisation

@@ -2,7 +2,7 @@
 
 Cible : serveur Linux (Ubuntu 22.04 LTS recommandé).
 
-Important : à ce stade du projet, le runtime repose sur **GeoServer + manifests fichiers**. La base de données applicative et Redis sont reportés à une phase ultérieure et ne sont pas nécessaires pour démarrer le projet.
+Important : à ce stade du projet, le runtime repose sur **GeoServer + overrides fichiers optionnels**. La base de données applicative et Redis sont reportés à une phase ultérieure et ne sont pas nécessaires pour démarrer le projet.
 
 ## 1. Prérequis système
 
@@ -28,6 +28,8 @@ Pour le développement local, ajuster ensuite `backend/.env` comme suit :
 
 ```env
 GEOSERVER_URL=https://gis.virunga.org/geoserver
+CATALOG_SOURCE=hybrid
+CATALOG_REFRESH_CRON=*/15 * * * *
 NODE_ENV=development
 PORT=3001
 FRONTEND_URL=http://localhost:3000
@@ -77,7 +79,7 @@ sudo certbot --nginx -d virunga.example.org
 ## 7. Vérifications
 
 - https://virunga.example.org/ — frontend
-- https://virunga.example.org/api/v1/health — `{"status":"ok"}`
+- https://virunga.example.org/api/v1/health — enveloppe `success/data/meta`
 - https://virunga.example.org/api/docs — Swagger
 
 ## 8. Remarque importante
@@ -85,6 +87,8 @@ sudo certbot --nginx -d virunga.example.org
 À ce stade :
 
 - les couches affichées par le portail proviennent de GeoServer ;
-- le catalogue applicatif est lu depuis `geoserver/layer-manifests/` ;
+- le catalogue applicatif est importé depuis GeoServer ;
+- `geoserver/layer-manifests/` sert uniquement à surcharger localement certaines couches ;
+- le catalogue est chargé au démarrage puis rafraîchi selon `CATALOG_REFRESH_CRON` ;
 - aucune migration Prisma ni connexion PostGIS n'est requise pour lancer l'application ;
 - Redis n'est pas requis pour lancer l'application.

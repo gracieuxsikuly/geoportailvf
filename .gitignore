@@ -1,40 +1,98 @@
-# Dépendances
+# =============================================================
+# Virunga WebGIS — .gitignore
+# =============================================================
+
+# ── Dépendances ──────────────────────────────────────────────
 node_modules/
 .pnpm-store/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
 
-# Builds
+# ── Builds / Sorties compilées ───────────────────────────────
 dist/
 build/
-.next/
 out/
+.next/
+*.tsbuildinfo
+tsconfig.build.tsbuildinfo
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-pm2.log
-pm2-error.log
+# ── Caches runtime ───────────────────────────────────────────
+.cache/
+.turbo/
+.eslintcache
+*.swc/
 
-# Environnement
+# ── Variables d'environnement ─────────────────────────────────
 .env
 .env.local
 .env.*.local
 !.env.example
+!frontend/.env.local.example
 
-# Editeurs
+# ── Logs ─────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pm2.log
+pm2-error.log
+pm2-pid.txt
+.pm2/
+
+# ── Tests & couverture ───────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# ── Prisma (réservé aux évolutions futures) ──────────────────
+prisma/migrations/dev/
+
+# ── GeoServer ────────────────────────────────────────────────
+# Fichiers de travail SLD locaux non versionnés
+geoserver/workspace-local/
+geoserver/*.zip
+
+# ── Déploiement ──────────────────────────────────────────────
+deploy/nginx/ssl/
+deploy/nginx/*.pem
+deploy/nginx/*.key
+deploy/nginx/*.crt
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ── Éditeurs ─────────────────────────────────────────────────
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+!.vscode/launch.json
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# OS
+# ── Système d'exploitation ───────────────────────────────────
 .DS_Store
 Thumbs.db
+Desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
 
-# Prisma
-prisma/migrations/dev/
+# ── Debug Node.js ────────────────────────────────────────────
+.node_repl_history
+*.pid
+*.seed
+*.pid.lock
 
-# Tests
-coverage/
-.nyc_output/
+# ── Divers ───────────────────────────────────────────────────
+*.local
+*.orig
+*.rej
